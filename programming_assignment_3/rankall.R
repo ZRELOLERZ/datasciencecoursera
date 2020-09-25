@@ -1,34 +1,9 @@
-bestHospital <- function(hospitals, stateName, rank) {
-  # print("bestHospital")
-  # print(stateName)
-  # print(colnames(hospitals))
-  hospitals <- hospitals[hospitals$State == stateName,]
-  best.hospital <- hospitals[order(hospitals[, 2], hospitals[, 1]),]
-  #print(hospitals)
-  resIndex <- rank
-  
-  if (rank == "best") {
-    resIndex = 1
-  }
-  else if (rank == "worst") {
-    resIndex = nrow(best.hospital)
-  }
-  else if (rank > nrow(best.hospital)) {
-    return(data.frame(state = c(stateName), hospital = c(NA)))
-  }
-  
-  minDeath <- min(hospitals[2])
-  hospitals.with.minDeath <- hospitals[hospitals[2] == minDeath,]
-  best.hospital <- hospitals.with.minDeath[order(hospitals.with.minDeath[, 1]),]
-  res <- data.frame(state = best.hospital[1,3], hospital = best.hospital[1,1])
-  res
-}
-
 rankall <- function(outcome, num = "best") {
+  #num = best(1), worst(-1), rank
+  
   data <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
   data.outcome <- NULL
   state.unique <- unique(data$State)
-  check.state <- FALSE
   
   #VALIDITY CHECK
   
@@ -45,15 +20,36 @@ rankall <- function(outcome, num = "best") {
   else {
     stop("invalid outcome")
   }
-  result <- data.frame(state = character(), hospital = character())
-  hospitals <- as.data.frame(data[, c("Hospital.Name", data.outcome, "State")][data[[data.outcome]] != "Not Available",])
-  hospitals[[data.outcome]] <- as.double(hospitals[[data.outcome]])
-  #print(hospitals)
-   for (state in state.unique) {
-     res <- bestHospital(hospitals, stateName = state, rank = num)
-     print("bestHospital")
-     print(res)
-     result <- rbind(result, res)
-   }
-  result
+  resData <- data.frame(hospital = character(), state = character())
+  for (state in state.unique) {
+    hospitals <- as.data.frame(data[, c("Hospital.Name", data.outcome)][data$State == state & data[[data.outcome]] != "Not Available",])
+    hospitals[[data.outcome]] <- as.double(hospitals[[data.outcome]])
+    best.hospital <- hospitals[order(hospitals[, 2], hospitals[, 1]),]
+    resIndex <- num
+  
+    if (num == "best") {
+      resIndex = 1
+      resData <- rbind(resData, data.frame(hospital = best.hospital[resIndex, 1], state = state)) 
+    }
+    else if (num == "worst") {
+      resIndex = nrow(best.hospital)
+      resData <- rbind(resData, data.frame(hospital = best.hospital[resIndex, 1], state = state))
+    }
+    else if (num > nrow(best.hospital)) {
+      resData <- rbind(resData, data.frame(hospital = NA, state = state)) 
+    }
+    else {
+      resIndex = num
+      resData <- rbind(resData, data.frame(hospital = best.hospital[resIndex, 1], state = state))
+    }
+  }
+  facs <- sapply(resData, is.factor)
+  resData[facs] <- lapply(resData[facs], as.character)
+  with(resData, resData[order(state, state),])
 }
+
+#TEST COMMANDS
+#rankall("heart attack", 20)
+#head(rankall("heart attack", 20), 10
+#tail(rankall("pneumonia", "worst"), 3)
+#tail(rankall("heart failure"), 10)

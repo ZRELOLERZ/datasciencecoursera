@@ -40,6 +40,7 @@ best <- function(state, outcome) {
   best.hospital[1, 1]
   }
 
+#TEST COMMANDS
 # > best("TX", "heart attack")
 # [1] "CYPRESS FAIRBANKS MEDICAL CENTER"
 # > best("TX", "heart failure")

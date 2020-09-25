@@ -44,11 +44,9 @@ rankhospital <- function(state, outcome, num = "best") {
   else if (num > nrow(best.hospital)) {
     return(NA)
   }
-  #print(resIndex)
-  #View(best.hospital)
   best.hospital[resIndex, 1]
-  #best.hospital
 }
 
+#TEST COMMANDS
 #rankhospital("TX", "heart failure", 4)
 #> rankhospital("MD", "heart attack", "worst")
