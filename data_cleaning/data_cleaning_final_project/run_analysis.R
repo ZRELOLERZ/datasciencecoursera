@@ -128,3 +128,4 @@ summary_data <- final_dataset %>%
 
 write_xlsx(final_dataset, "train_and_test_dataset.xlsx")
 write_xlsx(summary_data, "dataset_summmary.xlsx")
+write.table(summary_data, "summary_data.txt", row.names = FALSE)
